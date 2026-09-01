@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 from .basic import _Basic_class
 from .utils import run_command
-from smbus2 import SMBus
+from ._compat import ON_RASPBERRY_PI
+if ON_RASPBERRY_PI:
+    from smbus2 import SMBus
+else:
+    from ._compat import MockSMBus as SMBus
 import multiprocessing
 
 

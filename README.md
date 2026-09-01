@@ -36,6 +36,32 @@ sudo python3 install.py
 
 ```
 
+### macOS / non-Raspberry Pi development
+
+The library targets the Raspberry Pi, but it can be installed, imported and
+exercised on other machines (e.g. macOS) for development and testing. When it
+detects it is not running on a Raspberry Pi, hardware access is automatically
+mocked: GPIO/I2C/audio writes are no-ops and reads return 0. A `RuntimeWarning`
+is emitted once when the mock layer is first touched.
+
+```bash
+git clone https://github.com/sunfounder/robot-hat.git -b 2.5.x
+cd robot-hat
+pip3 install .
+python3 -c "import robot_hat; print(robot_hat.__version__)"
+```
+
+Notes:
+
+- Config files that live under `/opt` on the Pi are stored under
+  `~/.config/robot-hat/` instead.
+- The `Music` class needs pygame at runtime: `pip3 install pygame`. Installing
+  `pyaudio` is optional; without it, tone playback is mocked.
+- The `Speaker`, `TTS`, `STT` and `LLM` modules still require their own
+  dependencies (`soundfile`, `librosa`, `sunfounder_voice_assistant`, ...) to
+  be importable.
+- Set `ROBOT_HAT_MOCK=1` to force the mock layer even on a Raspberry Pi.
+
 ## Debug commands
 
 All command records for debug

@@ -2,7 +2,10 @@
 from .basic import _Basic_class
 import time
 import threading
-import pyaudio
+try:
+    import pyaudio
+except ImportError:
+    from ._compat import mock_pyaudio as pyaudio
 import os
 import struct
 import math

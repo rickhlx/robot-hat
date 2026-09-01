@@ -1,5 +1,8 @@
 import os
 
+from ._compat import ON_RASPBERRY_PI, warn_mock_hardware
+from .utils import error
+
 class Devices():
     HAT_DEVICE_TREE = "/proc/device-tree/"
     HAT_UUIDs = [
@@ -29,6 +32,8 @@ class Devices():
 
     def __init__(self):
         hat_path = None
+        if not os.path.isdir(self.HAT_DEVICE_TREE):
+            return
         for file in os.listdir('/proc/device-tree/'):
             if 'hat' in file:
                 # print("hat detected")
@@ -102,6 +107,9 @@ def set_pin(pin: int, value: bool):
     :type value: bool
     """
     from .utils import command_exists, run_command
+    if not ON_RASPBERRY_PI:
+        warn_mock_hardware()
+        return
     pincmd = ''
     if command_exists("pinctrl"):
         pincmd = 'pinctrl'
