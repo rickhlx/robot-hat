@@ -8,8 +8,10 @@ import os
 
 # user and User home directory
 User = os.popen('echo ${SUDO_USER:-$LOGNAME}').readline().strip()
-UserHome = os.popen('getent passwd %s | cut -d: -f 6' %
+UserHome = os.popen('getent passwd %s 2>/dev/null | cut -d: -f 6' %
                     User).readline().strip()
+if not UserHome:
+    UserHome = os.path.expanduser('~')
 config_file = '%s/.config/robot-hat/robot-hat.conf' % UserHome
 
 

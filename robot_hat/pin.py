@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 from .basic import _Basic_class
-import lgpio
+from ._compat import ON_RASPBERRY_PI
+if ON_RASPBERRY_PI:
+    import lgpio
+else:
+    from ._compat import mock_lgpio as lgpio
 from .device import PIN
 
 class Pin(_Basic_class):

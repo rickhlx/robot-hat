@@ -3,6 +3,17 @@ from .basic import _Basic_class
 from .pwm import PWM
 from .pin import Pin
 from .filedb import fileDB
+from .utils import get_username
+from ._compat import ON_RASPBERRY_PI
+import os
+
+User = get_username()
+
+if ON_RASPBERRY_PI:
+    _default_motors_config = "/opt/robot_hat/default_motors.config"
+else:
+    _default_motors_config = os.path.expanduser(
+        "~/.config/robot-hat/default_motors.config")
 
 class Motor():
     """Motor"""
@@ -125,7 +136,7 @@ class Motors(_Basic_class):
     MOTOR_1_DIR_PIN = "D4"
     MOTOR_2_PWM_PIN = "P12"
     MOTOR_2_DIR_PIN = "D5"
-    config_file = "/opt/robot_hat/default_motors.config"
+    config_file = _default_motors_config
     def __init__(self, db=config_file, *args, **kwargs):
         """
         Initialize motors with robot_hat.motor.Motor
