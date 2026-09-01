@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 from .basic import _Basic_class
-from smbus import SMBus
+from ._compat import ON_RASPBERRY_PI
+if ON_RASPBERRY_PI:
+    from smbus import SMBus
+else:
+    from ._compat import MockSMBus as SMBus
 
 def _retry_wrapper(func):
     def wrapper(self, *arg, **kwargs):
@@ -64,6 +68,8 @@ class I2C(_Basic_class):
             return False
 
     def scan(self):                             # 查看有哪些i2c设备
+        if not ON_RASPBERRY_PI:
+            return []
         cmd = "i2cdetect -y %s" % self._bus
         _, output = self.run_command(cmd)          # 调用basic中的方法，在linux中运行cmd指令，并返回运行后的内容
         

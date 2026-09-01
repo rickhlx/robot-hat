@@ -151,7 +151,18 @@ PIP_INSTALL_LIST = [
     "'pygame>=2.1.2'",
 ]
 
-if sys.argv[1] == 'install':
+def is_raspberry_pi():
+    try:
+        with open('/proc/device-tree/model') as f:
+            return 'raspberry pi' in f.read().lower()
+    except OSError:
+        return False
+
+
+if len(sys.argv) > 1 and sys.argv[1] == 'install' and not is_raspberry_pi():
+    print("Not running on a Raspberry Pi, skipping apt/pip dependency "
+          "installation and interface setup (hardware will be mocked).")
+elif len(sys.argv) > 1 and sys.argv[1] == 'install':
     try:
     # Install dependency 
         # =============================

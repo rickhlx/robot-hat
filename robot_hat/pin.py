@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 from .basic import _Basic_class
-import RPi.GPIO as GPIO
+from ._compat import ON_RASPBERRY_PI
+if ON_RASPBERRY_PI:
+    import RPi.GPIO as GPIO
+else:
+    from ._compat import mock_gpio as GPIO
 
 class Pin(_Basic_class):
     OUT = GPIO.OUT

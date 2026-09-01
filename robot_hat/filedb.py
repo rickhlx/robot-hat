@@ -12,6 +12,7 @@
 '''
 import os
 from time import sleep
+from ._compat import ON_RASPBERRY_PI
 
 
 class fileDB(object):
@@ -49,10 +50,11 @@ class fileDB(object):
 				with open(file_path, 'w') as f:
 					f.write("# robot-hat config and calibration value of robots\n\n")
 
-			if mode != None:
-				os.popen('sudo chmod %s %s'%(mode, file_path))
-			if owner != None:
-				os.popen('sudo chown -R %s:%s %s'%(owner, owner, file_path.rsplit('/',1)[0]))		
+			if ON_RASPBERRY_PI:
+				if mode != None:
+					os.popen('sudo chmod %s %s'%(mode, file_path))
+				if owner != None:
+					os.popen('sudo chown -R %s:%s %s'%(owner, owner, dir))
 		except Exception as e:
 			raise(e) 
 	

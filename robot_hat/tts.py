@@ -1,6 +1,6 @@
 from .basic import _Basic_class
 from .music import Music
-from distutils.spawn import find_executable
+from shutil import which as find_executable
 import json
 
 class TTS(_Basic_class):

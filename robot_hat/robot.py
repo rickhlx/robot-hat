@@ -8,7 +8,12 @@ import os
 
 # user and User home directory
 User = os.popen('echo ${SUDO_USER:-$LOGNAME}').readline().strip()
-UserHome = os.popen('getent passwd %s | cut -d: -f 6'%User).readline().strip()
+UserHome = os.popen('getent passwd %s 2>/dev/null | cut -d: -f 6'%User).readline().strip()
+if not UserHome:
+    # getent is not available on macOS; fall back to the pwd database / $HOME
+    UserHome = os.path.expanduser('~%s' % User)
+    if UserHome.startswith('~'):
+        UserHome = os.path.expanduser('~')
 # print(User)  # pi
 # print(UserHome) # /home/pi
 config_file = '%s/.config/robot-hat/robot-hat.conf'%UserHome

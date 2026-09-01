@@ -37,6 +37,51 @@ sudo python3 setup.py install
 sudo apt install espeak
 ```
 
+### macOS / non-Raspberry Pi development
+
+The library targets the Raspberry Pi, but it can be installed, imported and
+exercised on other machines (e.g. macOS) for development and testing. When it
+detects it is not running on a Raspberry Pi, the Pi-only packages
+(`RPi.GPIO`, `smbus`, `spidev`, `pyaudio`) are replaced by mocks: GPIO/I2C/SPI/
+audio writes are no-ops and reads return 0. A `RuntimeWarning` is emitted once
+when the mock layer is first touched.
+
+```bash
+git clone https://github.com/sunfounder/robot-hat.git
+cd robot-hat
+pip3 install .
+python3 -c "import robot_hat; print(robot_hat.__version__)"
+
+# run the mock-platform smoke test
+python3 -m unittest tests/test_mock_platform.py
+```
+
+Notes:
+
+- `python3 setup.py install` skips the `apt`/`pip`/`raspi-config` bootstrap
+  when not on a Raspberry Pi, so it never prompts for `sudo`.
+- Config files that the Pi keeps under `/home/<user>` are stored under
+  `~/.config/robot-hat/` (and `~/Music`, `~/Sound`) instead.
+- The `Music` class needs pygame at runtime: `pip3 install pygame`;
+  `Music.play_tone_for()` additionally needs numpy. Installing `pyaudio` is
+  optional; without it, tone playback is mocked.
+- `TTS` constructs fine but the actual engines (`pico2wave`, `espeak`,
+  `aplay`) are Linux tools.
+- Set `ROBOT_HAT_MOCK=1` to force the mock layer even on a Raspberry Pi.
+
+## Debug commands
+
+All command records for debug
+
+```bash
+cd ~/robot-hat && git pull && sudo pip3 install . --break --no-deps --no-build-isolation
+sudo pip3 uninstall -y robot_hat --break && sudo pip3 install ~/robot-hat --break --no-deps --no-build-isolation
+
+sudo python3 ~/robot-hat/examples/tts_piper.py
+sudo python3 ~/robot-hat/examples/stt_vosk_stream.py
+```
+
+
 ## Trouble Shooting
 
 ----------------------------------------------

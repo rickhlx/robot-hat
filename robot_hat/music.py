@@ -2,30 +2,52 @@
 from .basic import _Basic_class
 import time
 import threading
-import pyaudio
-import numpy as np
 import os
+from ._compat import ON_RASPBERRY_PI
+try:
+    import pyaudio
+except ImportError:
+    from ._compat import mock_pyaudio as pyaudio
+try:
+    import numpy as np
+except ImportError:
+    np = None
 
 # ignore warnings of pygame
 import warnings
-warning_bk = warnings.filters
+warning_bk = warnings.filters[:]
 # for filter_tuple in warning_bk:
 #     print(filter_tuple)
 warnings.filterwarnings("ignore")
 
 # ignore welcome message of pygame, and the value must be <str> 
 # os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "1" 
-import pygame
+try:
+    import pygame
+except ImportError:
+    pygame = None
 
 warnings.filters = warning_bk
 
 
-user_name = os.getlogin()
+def _get_user_name():
+    try:
+        return os.getlogin()
+    except OSError:
+        import getpass
+        return getpass.getuser()
+
+
+user_name = _get_user_name()
+if ON_RASPBERRY_PI:
+    _user_home = f'/home/{user_name}'
+else:
+    _user_home = os.path.expanduser('~')
 
 class Music(_Basic_class):
     MUSIC_BEAT = 500
-    MUSIC_DIR = f'/home/{user_name}/Music/'
-    SOUND_DIR = f'/home/{user_name}/Sound/'
+    MUSIC_DIR = f'{_user_home}/Music/'
+    SOUND_DIR = f'{_user_home}/Sound/'
 
     NOTES = {
         "Low C": 261.63,
@@ -67,6 +89,9 @@ class Music(_Basic_class):
     }
 
     def __init__(self):
+        if pygame is None:
+            raise ImportError(
+                "robot_hat.Music requires pygame: pip3 install pygame")
         self.pygame = pygame
         self.pygame.mixer.init()
 
@@ -146,6 +171,9 @@ class Music(_Basic_class):
         return round(music.get_length(),2)
     
     def play_tone_for(self, freq, duration):
+        if np is None:
+            raise ImportError(
+                "robot_hat.Music.play_tone_for requires numpy: pip3 install numpy")
         p = pyaudio.PyAudio()
         volume = 1 # range [0.0, 1.0]
         fs = 44100 # sampling rate, Hz, must be integer
