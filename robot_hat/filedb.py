@@ -53,6 +53,12 @@ class fileDB(object):
 				os.popen('sudo chmod %s %s'%(mode, file_path))
 			if owner != None:
 				os.popen('sudo chown -R %s:%s %s'%(owner, owner, file_path.rsplit('/',1)[0]))		
+			from ._compat import ON_RASPBERRY_PI
+			if ON_RASPBERRY_PI:
+				if mode != None:
+					os.popen('sudo chmod %s %s'%(mode, file_path))
+				if owner != None:
+					os.popen('sudo chown -R %s:%s %s'%(owner, owner, dir))
 		except Exception as e:
 			raise(e) 
 	

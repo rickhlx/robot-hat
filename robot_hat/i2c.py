@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 from .basic import _Basic_class
 from smbus import SMBus
+from .utils import run_command
+from ._compat import ON_RASPBERRY_PI
+if ON_RASPBERRY_PI:
+    from smbus2 import SMBus
+else:
+    from ._compat import MockSMBus as SMBus
+import multiprocessing
+
 
 def _retry_wrapper(func):
     def wrapper(self, *arg, **kwargs):

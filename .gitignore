@@ -3,3 +3,11 @@
 
 .claude/worktrees
 *.pyc
+docs/build
+__pycache__
+bk/
+*secret*
+*.pyc
+build/
+dist/
+*.egg-info/

@@ -4,6 +4,10 @@ import time
 import threading
 import pyaudio
 import numpy as np
+try:
+    import pyaudio
+except ImportError:
+    from ._compat import mock_pyaudio as pyaudio
 import os
 
 # ignore warnings of pygame
