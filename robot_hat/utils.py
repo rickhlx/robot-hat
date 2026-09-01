@@ -4,6 +4,7 @@ import os
 import re
 import math
 from .pin import Pin
+from ._compat import ON_RASPBERRY_PI, warn_mock_hardware
 
 
 def delay(ms):
@@ -11,6 +12,9 @@ def delay(ms):
 
 def set_volume(value):
     value = min(100, max(0, value))
+    if not ON_RASPBERRY_PI:
+        warn_mock_hardware()
+        return
     cmd = "sudo amixer -M sset 'PCM' %d%%" % value
     os.system(cmd)
 
