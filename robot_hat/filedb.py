@@ -137,10 +137,25 @@ class fileDB(object):
 		if not flag:
 			lines.append('%s = %s\n\n' % (name, value))
 
-		# Save the file
-		conf = open(self.db,'w')
-		conf.writelines(lines)
-		conf.close()
+		# Save the file atomically: write to a temp file in the same
+		# directory, flush/fsync it, then rename it over the target.
+		# A plain open(self.db,'w') truncates the file in place, so a
+		# power loss mid-write (e.g. a servo stall browning out the
+		# board during calibration) can leave the config file empty or
+		# corrupt. os.replace() is atomic on the same filesystem, so
+		# the on-disk file is always either the old or the new
+		# complete contents, never a partial write.
+		tmp_path = '%s.tmp.%d' % (self.db, os.getpid())
+		try:
+			with open(tmp_path, 'w') as f:
+				f.writelines(lines)
+				f.flush()
+				os.fsync(f.fileno())
+			os.replace(tmp_path, self.db)
+		except Exception:
+			if os.path.exists(tmp_path):
+				os.remove(tmp_path)
+			raise
 
 if __name__ == '__main__':
     db = fileDB('/opt/robot-hat/test2.config')
