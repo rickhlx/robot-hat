@@ -145,13 +145,24 @@ class I2C(_Basic_class):
         for tmp_addresses in outputs:
             if tmp_addresses == "":
                 continue
+            if ':' not in tmp_addresses:
+                continue
             tmp_addresses = tmp_addresses.split(':')[1]
             # Split the addresses into a list
             tmp_addresses = tmp_addresses.strip().split(' ')
             for address in tmp_addresses:
-                if address != '--':
-                    addresses.append(int(address, 16))
-                    addresses_str.append(f'0x{address}')
+                # i2cdetect prints "--" for an empty address and "UU" when the
+                # address is in use by a kernel driver.  Neither is a plain hex
+                # address, so skip them instead of raising ValueError (which
+                # used to abort the whole scan).
+                if address in ('--', 'UU'):
+                    continue
+                try:
+                    address_int = int(address, 16)
+                except ValueError:
+                    continue
+                addresses.append(address_int)
+                addresses_str.append(f'0x{address}')
         self._debug(f"Conneceted i2c device: {addresses_str}")
         return addresses
 
