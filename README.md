@@ -2,12 +2,20 @@
 
 Robot Hat Python library for Raspberry Pi.
 
+This is a fork of [sunfounder/robot-hat](https://github.com/sunfounder/robot-hat)
+(`2.5.x` branch), used by [rickhlx/picrawler](https://github.com/rickhlx/picrawler).
+It adds macOS / non-Raspberry Pi support with mocked hardware (see below) and is
+kept in sync with upstream `2.5.x`.
+
 Quick Links:
 
 - [Robot Hat](#robot-hat)
   - [About Robot Hat](#about-robot-hat)
   - [Update](#update)
   - [Installation](#installation)
+    - [Updating](#updating)
+    - [macOS / non-Raspberry Pi development](#macos--non-raspberry-pi-development)
+    - [Syncing with upstream](#syncing-with-upstream)
   - [Debug commands](#debug-commands)
   - [Trouble Shooting](#trouble-shooting)
   - [About SunFounder](#about-sunfounder)
@@ -20,6 +28,9 @@ Robot HAT is a multifunctional expansion board that allows Raspberry Pi to be qu
 
 
 ## Update
+2026-09-17:
+- Fork synced with upstream `2.5.x` (v2.5.7): i2c scan no longer fails on `UU` addresses, plus the Pi 5 GPIO chip fix below
+
 2026-09-11:
 - Fix `can not open gpiochip` on Raspberry Pi 5: the GPIO chip that drives the 40-pin header is now auto-detected instead of hard-coding `gpiochip0`, because the kernel has renumbered it more than once (`ROBOT_HAT_GPIOCHIP` can force a number if needed)
 
@@ -33,10 +44,26 @@ Robot HAT is a multifunctional expansion board that allows Raspberry Pi to be qu
 ## Installation
 
 ```bash
-git clone https://github.com/sunfounder/robot-hat.git -b 2.5.x
+cd ~/
+git clone https://github.com/rickhlx/robot-hat.git -b 2.5.x
 cd robot-hat
 sudo python3 install.py
+```
 
+`install.py` also installs the apt/pip dependencies and `sunfounder-voice-assistant`
+(needed by the picrawler voice examples).
+
+### Updating
+
+If `~/robot-hat` was cloned from SunFounder, point it at this fork first:
+
+```bash
+cd ~/robot-hat
+git remote set-url origin https://github.com/rickhlx/robot-hat.git
+git fetch origin 2.5.x
+git checkout 2.5.x
+git reset --hard origin/2.5.x
+sudo python3 install.py
 ```
 
 ### macOS / non-Raspberry Pi development
@@ -48,7 +75,7 @@ mocked: GPIO/I2C/audio writes are no-ops and reads return 0. A `RuntimeWarning`
 is emitted once when the mock layer is first touched.
 
 ```bash
-git clone https://github.com/sunfounder/robot-hat.git -b 2.5.x
+git clone https://github.com/rickhlx/robot-hat.git -b 2.5.x
 cd robot-hat
 pip3 install .
 python3 -c "import robot_hat; print(robot_hat.__version__)"
@@ -64,6 +91,16 @@ Notes:
   dependencies (`soundfile`, `librosa`, `sunfounder_voice_assistant`, ...) to
   be importable.
 - Set `ROBOT_HAT_MOCK=1` to force the mock layer even on a Raspberry Pi.
+
+### Syncing with upstream
+
+```bash
+git remote add upstream https://github.com/sunfounder/robot-hat.git   # once
+git fetch upstream 2.5.x
+git checkout -b sync-upstream-2.5.x origin/2.5.x
+git merge upstream/2.5.x
+git push -u origin sync-upstream-2.5.x   # then open a PR into 2.5.x
+```
 
 ## Debug commands
 
