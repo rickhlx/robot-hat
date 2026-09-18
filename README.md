@@ -8,6 +8,8 @@ Quick Links:
   - [About Robot Hat](#about-robot-hat)
   - [Update](#update)
   - [Installation](#installation)
+    - [macOS / non-Raspberry Pi development](#macos--non-raspberry-pi-development)
+  - [Debug commands](#debug-commands)
   - [Trouble Shooting](#trouble-shooting)
   - [About SunFounder](#about-sunfounder)
   - [License](#license)
@@ -18,6 +20,21 @@ Quick Links:
 TODO
 
 ## Update
+
+2026-09-01:
+
+- Run on macOS / non-Raspberry Pi machines with mocked hardware
+  (`robot_hat/_compat.py`): `RPi.GPIO`, `smbus`, `spidev` and `pyaudio` are
+  replaced by mocks off-Pi, and `ROBOT_HAT_MOCK=1` forces the mock layer.
+  See [macOS / non-Raspberry Pi development](#macos--non-raspberry-pi-development).
+- `setup.py install` skips the apt/pip/raspi-config bootstrap when not on a Pi.
+- `I2C.scan()` returns `[]` off-Pi instead of shelling out to `i2cdetect`.
+- `pygame` and `numpy` are now optional for `Music`; a clear `ImportError` is
+  raised only by the methods that need them.
+- Fixes: `spi.py` `SPiDev` -> `SpiDev` typo; `tts.py` uses `shutil.which`
+  instead of `distutils` (removed in Python 3.12); `music.py` no longer leaks
+  a global "ignore" warnings filter.
+- Added `tests/test_mock_platform.py` smoke test.
 
 2021-07-05:
 
@@ -74,11 +91,12 @@ Notes:
 All command records for debug
 
 ```bash
+# reinstall on the Pi after pulling changes
 cd ~/robot-hat && git pull && sudo pip3 install . --break --no-deps --no-build-isolation
 sudo pip3 uninstall -y robot_hat --break && sudo pip3 install ~/robot-hat --break --no-deps --no-build-isolation
 
-sudo python3 ~/robot-hat/examples/tts_piper.py
-sudo python3 ~/robot-hat/examples/stt_vosk_stream.py
+# exercise the library with mocked hardware (any machine, or a Pi)
+ROBOT_HAT_MOCK=1 python3 -m unittest tests/test_mock_platform.py
 ```
 
 
